@@ -1,33 +1,44 @@
-player_1_health = 100
-player_2_health = 90
 import random
-valore_scudo = random.randit(5, 10)
-print("valore dello scudo:",valore_scudo
-dadig1 = (random.randit(1, 6) for i in range(4)
-danni_g1 = sum(dadi_g1)
-print("giocatore 1 lancia 4d6: , dadi_g1)
-print("danni inflitti dal giocatore 1:" , danni_g1)
-dadi_g2= (random.randint(1,12) for i in range(2)
-danni_g2 = sum(dadi_g2)
-print("giocatore 2 lancia 2d12:", dadi_g2)
-print("danni inflitti dal giocatore2:" , danni_g2)
-vita_g1 = 100
-vita_g2 = 90
-while vita_g1 0 and vita_g2 0:
-danni_g1 = sum(random.randint(1 ,6)
-for _ in range(4))
-print("giocatore 1 infligge" , danni_g1 "dadi2 )
-vita_g2 = danni_g1
-print("vita rimanente del giocatore 2:" , vita_g2
-if vita_g2 =0:
-print("giocatore 1 ha vinto")
-break
-danni_g2 = sum(random.randit(1,12) for _ in range(2)
-print("giocatore2 infligge" , danni_g2: "danni2
- vita_g1 = danni_g2print("vita rimanente del giocatore 1." , vita_g1
- if vita_g1 =0:
-  print("giocatore 2 ha vinto")
- break                       )    
+
+def lancia_dadi(num_dadi, facce):
+    return sum(random.randint(1, facce) for _ in range(num_dadi))
+
+salute_player1 = random.randint(80, 100)
+scudo_player1 = random.randint(5, 10)
+salute_player2 = random.randint(80, 100)
+scudo_player2 = random.randint(5, 10)
+
+dadi_player1 = (4, 6)
+dadi_player2 = (2, 12)
+
+turni = 0
+
+while salute_player1 > 0 and salute_player2 > 0:
+    turni += 1
+    
+    attacco_player1 = lancia_dadi(dadi_player1[0], dadi_player1[1])
+    danno_a_player2 = max(attacco_player1 - scudo_player2, 0)  
+    salute_player2 -= danno_a_player2
+    
+    print(f"Turno {turni}")
+    print(f"[Player1] Danno: {danno_a_player2} ({attacco_player1}-{scudo_player2})")
+    print(f"[Player2] Salute: {salute_player2}")
+    print("\t---")
+    
+    attacco_player2 = lancia_dadi(dadi_player2[0], dadi_player2[1])
+    danno_a_player1 = max(attacco_player2 - scudo_player1, 0)  
+    salute_player1 -= danno_a_player1
+    
+    print(f"[Player2] Danno: {danno_a_player1} ({attacco_player2}-{scudo_player1})")
+    print(f"[Player1] Salute: {salute_player1}")
+    print("\n")
+
+if salute_player1 > 0 and salute_player2 <= 0:
+    print(f"Player1 vince in {turni} turni!")
+elif salute_player2 > 0 and salute_player1 <= 0:
+    print(f"Player2 vince in {turni} turni!")
+else:
+    print(f"Pareggio. Entrambi i giocatori sono stati sconfitti in {turni} turni.")
 
 
 
