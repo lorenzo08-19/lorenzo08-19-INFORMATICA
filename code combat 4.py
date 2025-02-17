@@ -1,17 +1,16 @@
 import random
 
 
-# Funzione per estrarre un numero casuale in un intervallo
+
 def random_range(min_val, max_val):
     return random.randint(min_val, max_val)
 
 
-# Funzione per calcolare l'attacco di un personaggio
 def roll_attack(dice):
     return sum(random_range(1, dice) for _ in range(dice))
 
 
-# Funzione per creare un personaggio
+
 def create_character(role):
     if role == 'guerriero':
         return {
@@ -51,7 +50,6 @@ def create_character(role):
         }
 
 
-# Funzione per eseguire l'abilità del Guerriero
 def berserk(character):
     roll = random_range(1, 6)
     if roll in [5, 6]:
@@ -64,7 +62,7 @@ def berserk(character):
         return "Guerriero perde il 20% della vita."
 
 
-# Funzione per eseguire l'abilità del Mago
+
 def concentrazione_assoluta(character):
     roll = random_range(1, 6)
     if roll in [5, 6]:
@@ -73,7 +71,7 @@ def concentrazione_assoluta(character):
     return "Mago non attiva l'abilità."
 
 
-# Funzione per eseguire l'abilità del Ladro
+
 def pugnali_acidi(opponent_party):
     roll = sum(random_range(1, 4) for _ in range(2))
     if roll in [7, 8]:
@@ -82,8 +80,6 @@ def pugnali_acidi(opponent_party):
         return "Ladro riduce la difesa degli avversari."
     return "Ladro non attiva l'abilità."
 
-
-# Funzione per eseguire l'abilità del Chierico
 def favore_degli_dei(character, ally_party):
     roll = sum(random_range(1, 6) for _ in range(2))
     weakest_ally = min(ally_party, key=lambda x: x['vita'])
@@ -91,7 +87,7 @@ def favore_degli_dei(character, ally_party):
     return f"Chierico cura {weakest_ally['classe']} di {roll} punti vita."
 
 
-# Funzione per determinare chi attacca chi
+
 def determine_attack_order(attacker, defender):
     if attacker['classe'] == 'Guerriero':
         target = max(defender, key=lambda x: x['vita'])
@@ -108,7 +104,7 @@ def determine_attack_order(attacker, defender):
     return target
 
 
-# Funzione per eseguire un attacco
+
 def attack(attacker, defender):
     if attacker['energia'] >= 2:
         attacker['energia'] -= 2
@@ -117,7 +113,7 @@ def attack(attacker, defender):
         target['vita'] -= max(damage, 0)  # I danni non possono essere negativi
         print(f"{attacker['classe']} attacca {target['classe']} infliggendo {max(damage, 0)} danni.")
 
-        # Abilità speciale
+        
         if attacker['classe'] == 'Guerriero':
             print(berserk(attacker))
         elif attacker['classe'] == 'Mago':
@@ -128,19 +124,18 @@ def attack(attacker, defender):
             print(favore_degli_dei(attacker, defender))
 
 
-# Funzione per controllare se il gioco è finito
 def check_victory(party):
     return all(character['vita'] <= 0 for character in party)
 
 
-# Creazione delle due squadre
+
 def create_team():
     roles = ['guerriero', 'mago', 'ladro', 'chierico']
     team = [create_character(role) for role in roles]
     return team
 
 
-# Funzione principale di gioco
+
 def battle():
     team1 = create_team()
     team2 = create_team()
