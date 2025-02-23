@@ -1,168 +1,79 @@
 import random
 
+CLASSI = {
+    "Guerriero": {"vita": (100, 120), "energia": (8, 10), "difesa": (4, 8), "attacco": (2, 6), "abilita": (1, 6)},
+    "Mago": {"vita": (70, 90), "energia": (14, 18), "difesa": (3, 5), "attacco": (1, 20), "abilita": (1, 8)},
+    "Ladro": {"vita": (80, 100), "energia": (10, 12), "difesa": (3, 5), "attacco": (3, 4), "abilita": (1, 4)},
+    "Chierico": {"vita": (80, 100), "energia": (10, 12), "difesa": (4, 6), "attacco": (1, 12), "abilita": (1, 6)}
+}
 
+def crea_personaggio(tipo):
+    attributi = CLASSI[tipo]
+    return {
+        "tipo": tipo,
+        "vita": random.randint(*attributi["vita"]),
+        "energia": random.randint(*attributi["energia"]),
+        "difesa": random.randint(*attributi["difesa"]),
+        "attacco": attributi["attacco"],
+        "abilita": attributi["abilita"]
+    }
 
-def random_range(min_val, max_val):
-    return random.randint(min_val, max_val)
+def crea_squadra():
+    return [crea_personaggio(tipo) for tipo in CLASSI]
 
+def lancia_dadi(numero, facce):
+    return sum(random.randint(1, facce) for _ in range(numero))
 
-def roll_attack(dice):
-    return sum(random_range(1, dice) for _ in range(dice))
+def scegli_bersaglio(attaccante, nemici):
+    if attaccante["tipo"] == "Guerriero":
+        return max(nemici, key=lambda p: p["vita"], default=None)
+    elif attaccante["tipo"] == "Mago":
+        return random.choice(nemici[len(nemici)//2-1:len(nemici)//2+1])
+    elif attaccante["tipo"] == "Ladro":
+        return min(nemici, key=lambda p: p["vita"], default=None)
+    elif attaccante["tipo"] == "Chierico":
+        return random.choice([nemici[0], nemici[-1]])
+    return None
 
+def attacca(attaccante, bersaglio):
+    if attaccante["energia"] < 2:
+        attaccante["energia"] = CLASSI[attaccante["tipo"]]["energia"][1] 
+        return
+    danno = max(0, lancia_dadi(*attaccante["attacco"]) - bersaglio["difesa"])
+    bersaglio["vita"] -= danno
+    attaccante["energia"] -= 2
 
+def usa_abilita(personaggio, nemici, alleati):
+    if lancia_dadi(1, personaggio["abilita"][1]) == personaggio["abilita"][1]:
+        if personaggio["tipo"] == "Guerriero":
+            if lancia_dadi(1, 6) >= 5:
+                attacca(personaggio, scegli_bersaglio(personaggio, nemici))
+        elif personaggio["tipo"] == "Mago":
+            personaggio["attacco"] = (personaggio["attacco"][0] + 1, personaggio["attacco"][1])
+        elif personaggio["tipo"] == "Ladro":
+            if lancia_dadi(2, 4) >= 7:
+                for nemico in nemici:
+                    nemico["difesa"] = max(0, nemico["difesa"] - nemico["difesa"] // 4)
+        elif personaggio["tipo"] == "Chierico":
+            piu_debole = min(alleati, key=lambda p: p["vita"], default=None)
+            if piu_debole:
+                piu_debole["vita"] += lancia_dadi(2, 6)
 
-def create_character(role):
-    if role == 'guerriero':
-        return {
-            'classe': 'Guerriero',
-            'vita': random_range(100, 120),
-            'energia': random_range(8, 10),
-            'difesa': random_range(4, 8),
-            'attacco': roll_attack(6),
-            'abilità': roll_attack(6)
-        }
-    elif role == 'mago':
-        return {
-            'classe': 'Mago',
-            'vita': random_range(70, 90),
-            'energia': random_range(14, 18),
-            'difesa': random_range(3, 5),
-            'attacco': roll_attack(20),
-            'abilità': roll_attack(8)
-        }
-    elif role == 'ladro':
-        return {
-            'classe': 'Ladro',
-            'vita': random_range(80, 100),
-            'energia': random_range(10, 12),
-            'difesa': random_range(3, 5),
-            'attacco': sum(random_range(1, 4) for _ in range(3)),
-            'abilità': roll_attack(4)
-        }
-    elif role == 'chierico':
-        return {
-            'classe': 'Chierico',
-            'vita': random_range(80, 100),
-            'energia': random_range(10, 12),
-            'difesa': random_range(4, 6),
-            'attacco': roll_attack(12),
-            'abilità': roll_attack(6)
-        }
+def combattimento(squadra1, squadra2):
+    while squadra1 and squadra2:
+        for i in range(min(len(squadra1), len(squadra2))):
+            attacca(squadra1[i], scegli_bersaglio(squadra1[i], squadra2))
+            usa_abilita(squadra1[i], squadra2, squadra1)
+            attacca(squadra2[i], scegli_bersaglio(squadra2[i], squadra1))
+            usa_abilita(squadra2[i], squadra1, squadra2)
+        squadra1 = [p for p in squadra1 if p["vita"] > 0]
+        squadra2 = [p for p in squadra2 if p["vita"] > 0]
+    return "Squadra 1 vince!" if squadra1 else "Squadra 2 vince!"
 
-
-def berserk(character):
-    roll = random_range(1, 6)
-    if roll in [5, 6]:
-        return "Guerriero attacca due volte."
-    elif roll in [3, 4]:
-        character['vita'] -= int(character['vita'] * 0.2)
-        return "Guerriero attacca e perde il 20% della vita."
-    else:
-        character['vita'] -= int(character['vita'] * 0.2)
-        return "Guerriero perde il 20% della vita."
-
-
-
-def concentrazione_assoluta(character):
-    roll = random_range(1, 6)
-    if roll in [5, 6]:
-        character['attacco'] += random_range(1, 4)
-        return f"Mago ha migliorato il suo attacco permanentemente."
-    return "Mago non attiva l'abilità."
-
-
-
-def pugnali_acidi(opponent_party):
-    roll = sum(random_range(1, 4) for _ in range(2))
-    if roll in [7, 8]:
-        for opponent in opponent_party:
-            opponent['difesa'] -= int(opponent['difesa'] * 0.25)
-        return "Ladro riduce la difesa degli avversari."
-    return "Ladro non attiva l'abilità."
-
-def favore_degli_dei(character, ally_party):
-    roll = sum(random_range(1, 6) for _ in range(2))
-    weakest_ally = min(ally_party, key=lambda x: x['vita'])
-    weakest_ally['vita'] += roll
-    return f"Chierico cura {weakest_ally['classe']} di {roll} punti vita."
-
-
-
-def determine_attack_order(attacker, defender):
-    if attacker['classe'] == 'Guerriero':
-        target = max(defender, key=lambda x: x['vita'])
-    elif attacker['classe'] == 'Mago':
-        middle = len(defender) // 2
-        if len(defender) % 2 == 0:
-            target = defender[middle] if random.choice([True, False]) else defender[middle - 1]
-        else:
-            target = defender[middle]
-    elif attacker['classe'] == 'Ladro':
-        target = min(defender, key=lambda x: x['vita'])
-    elif attacker['classe'] == 'Chierico':
-        target = random.choice([defender[0], defender[-1]])
-    return target
-
-
-
-def attack(attacker, defender):
-    if attacker['energia'] >= 2:
-        attacker['energia'] -= 2
-        target = determine_attack_order(attacker, defender)
-        damage = attacker['attacco'] - target['difesa']
-        target['vita'] -= max(damage, 0)  # I danni non possono essere negativi
-        print(f"{attacker['classe']} attacca {target['classe']} infliggendo {max(damage, 0)} danni.")
-
-        
-        if attacker['classe'] == 'Guerriero':
-            print(berserk(attacker))
-        elif attacker['classe'] == 'Mago':
-            print(concentrazione_assoluta(attacker))
-        elif attacker['classe'] == 'Ladro':
-            print(pugnali_acidi(defender))
-        elif attacker['classe'] == 'Chierico':
-            print(favore_degli_dei(attacker, defender))
-
-
-def check_victory(party):
-    return all(character['vita'] <= 0 for character in party)
-
-
-
-def create_team():
-    roles = ['guerriero', 'mago', 'ladro', 'chierico']
-    team = [create_character(role) for role in roles]
-    return team
-
-
-
-def battle():
-    team1 = create_team()
-    team2 = create_team()
-
-    turn = 0
-    while True:
-        print(f"\nTurno {turn + 1}")
-        print("Team 1:", [(char['classe'], char['vita']) for char in team1])
-        print("Team 2:", [(char['classe'], char['vita']) for char in team2])
-
-        for attacker, defender in zip(team1, team2):
-            attack(attacker, team2)
-
-        for attacker, defender in zip(team2, team1):
-            attack(attacker, team1)
-
-        if check_victory(team1):
-            print("Team 2 vince!")
-            break
-        elif check_victory(team2):
-            print("Team 1 vince!")
-            break
-
-        turn += 1
-
-
-battle()
+squadra1 = crea_squadra()
+squadra2 = crea_squadra()
+risultato = combattimento(squadra1, squadra2)
+print(risultato)
 
 
 
