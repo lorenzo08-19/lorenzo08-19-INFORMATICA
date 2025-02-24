@@ -3,8 +3,8 @@ import random
 
 def genera_matrice(n):
     
-    numeri = random.sample(range(1, n * n + 1), n * n)  # Numeri distinti da 1 a n*n
-    matrice = [numeri[i:i + n] for i in range(0, len(numeri), n)]  # Crea la matrice
+    numeri = random.sample(range(1, n * n + 1), n * n)  
+    matrice = [numeri[i:i + n] for i in range(0, len(numeri), n)]  
     return matrice
 
 
