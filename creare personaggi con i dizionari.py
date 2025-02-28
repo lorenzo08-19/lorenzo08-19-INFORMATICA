@@ -1,10 +1,7 @@
 import random
 
 print('\n#1: CREAZIONE DEL PERSONAGGIO\n')
-# 1. Crea un dizionario inserendo al suo interno:
-# 	 - Un nome scelto a caso dalla lista di nomi
-#    - Chiedi all'utente di inserire una classe per il proprio personaggio a scelta tra Guerriero, Mago, Chierico, Ladro
-#    Memorizza queste informazioni in un dizionario chiamato 'character'
+
 nomi = ["Drakar", "Lirael", "Thalas", "Eldorin", "Lyndra", "Kaelith", "Sylas", "Faelan", "Mirabelle", "Zephyr", "Isolde", "Thorn", "Elysia", "Varian", "Aeris", "Nerys", "Gwynn", "Eldira", "Soren", "Lirion"]
 
 
